@@ -15,7 +15,13 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npx cap add android
+      - name: Add alarm permissions
+        run: |
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.VIBRATE" />#' android/app/src/main/AndroidManifest.xml
+          grep -c EXACT_ALARM android/app/src/main/AndroidManifest.xml
       - run: npx cap sync android
+      - name: Use fixed signing key
+        run: mkdir -p ~/.android && cp debug.keystore ~/.android/debug.keystore
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
